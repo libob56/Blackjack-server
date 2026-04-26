@@ -1,14 +1,26 @@
-const io = require("socket.io")(process.env.PORT || 3000, {
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-io.on("connection", (socket) => {
-  console.log("Игрок подключился:", socket.id);
+// Это чтобы при заходе по ссылке не было ошибки 500
+app.get('/', (req, res) => {
+  res.send('Сервер Блэкджека запущен и готов!');
+});
 
-  socket.on("action", (data) => {
-    // Тут будет логика ходов
-    console.log("Действие от игрока:", data);
+io.on('connection', (socket) => {
+  console.log('Игрок вошел:', socket.id);
+  socket.on('action', (data) => {
+    console.log('Ход игрока:', data);
   });
 });
 
-console.log("Сервер запущен!");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log('Работаем на порту:', PORT);
+});
