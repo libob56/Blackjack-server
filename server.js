@@ -1,18 +1,17 @@
 const express = require('express');
-const cors = require('cors'); // 1. ЭТУ СТРОЧКУ ДОБАВИТЬ
-const app = express();
-
-app.use(cors()); // 2. И ЭТУ СТРОЧКУ ДОБАВИТЬ
-
-// Дальше идет твой старый код (например, app.get...)
-const express = require('express');
+const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+app.use(cors()); // Это разрешает запросы от твоей игры
 
+const server = http.createServer(app);
+const io = new Server(server, { 
+    cors: { origin: "*" } 
+});
+
+// Твой старый код продолжается отсюда...
 let users = {};
 
 function createCard() {
