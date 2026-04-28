@@ -4,6 +4,8 @@ const app = express();
 app.use(cors());
 
 let playerHand = [], dealerHand = [], gameOver = false;
+let balance = 1000; // Твой стартовый капитал
+let currentBet = 10; // Ставка по умолчанию
 
 function createCard() {
     const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -23,25 +25,37 @@ function getScore(hand) {
 }
 
 app.get('/newGame', (req, res) => {
+    if (balance < currentBet) return res.json({ error: "Недостаточно средств!" });
+    balance -= currentBet;
     playerHand = [createCard(), createCard()];
-    dealerHand = [createCard(), createCard()]; // Дилер тоже берет две
+    dealerHand = [createCard(), createCard()];
     gameOver = false;
-    res.json({ playerHand, dealerHand: [dealerHand[0]], playerScore: getScore(playerHand), gameOver }); 
+    res.json({ playerHand, dealerHand: [dealerHand[0]], playerScore: getScore(playerHand), balance, gameOver });
 });
 
 app.get('/hit', (req, res) => {
     if (!gameOver) playerHand.push(createCard());
     const score = getScore(playerHand);
     if (score >= 21) gameOver = true;
-    res.json({ playerHand, playerScore: score, gameOver });
+    res.json({ playerHand, playerScore: score, balance, gameOver });
 });
 
 app.get('/stand', (req, res) => {
     gameOver = true;
     while (getScore(dealerHand) < 17) dealerHand.push(createCard());
     const pScore = getScore(playerHand), dScore = getScore(dealerHand);
-    let result = pScore > 21 ? 'Проигрыш' : dScore > 21 || pScore > dScore ? 'ПОБЕДА!' : pScore === dScore ? 'Ничья' : 'Дилер выиграл';
-    res.json({ playerHand, dealerHand, playerScore: pScore, dealerScore: dScore, result, gameOver });
+    
+    let result = '';
+    if (pScore > 21) result = 'Проигрыш';
+    else if (dScore > 21 || pScore > dScore) {
+        result = 'ПОБЕДА!';
+        balance += currentBet * 2; // Возвращаем ставку в двойном размере
+    } else if (pScore === dScore) {
+        result = 'Ничья';
+        balance += currentBet; // Возвращаем ставку
+    } else result = 'Дилер выиграл';
+
+    res.json({ playerHand, dealerHand, playerScore: pScore, dealerScore: dScore, result, balance, gameOver });
 });
 
 app.listen(process.env.PORT || 3000);
