@@ -117,8 +117,6 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(process.env.PORT || 10000);
-
 // Добавь это в самый конец server.js на GitHub:
 
 app.get('/newGame', (req, res) => {
