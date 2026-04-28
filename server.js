@@ -118,3 +118,19 @@ io.on('connection', (socket) => {
 });
 
 server.listen(process.env.PORT || 10000);
+
+// Добавь это в самый конец server.js на GitHub:
+
+app.get('/newGame', (req, res) => {
+    // Сервер отвечает: "Вот твой баланс!"
+    res.json({ 
+        balance: 1000, 
+        message: "Игра началась!" 
+    });
+});
+
+// И не забудь про порт (он должен быть в самом-самом конце):
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log('Сервер запущен на порту ' + PORT);
+});
