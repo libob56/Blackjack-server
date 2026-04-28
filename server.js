@@ -13,16 +13,20 @@ const io = new Server(server, {
 
 // Твоя функция создания карты
 function createCard() {
-    const cards = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-    return cards[Math.floor(Math.random() * cards.length)];
+    const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const suits = ['♠', '♣', '♥', '♦']; // Масти
+    return {
+        value: values[Math.floor(Math.random() * values.length)],
+        suit: suits[Math.floor(Math.random() * suits.length)]
+    };
 }
 
-// ТОТ САМЫЙ ЗАПРОС, который ждет игра
 app.get('/newGame', (req, res) => {
+    const card = createCard();
     res.json({ 
         balance: 1000, 
-        card: createCard(), 
-        message: "Карта выдана!" 
+        card: card, // Теперь это объект {value: "10", suit: "♠"}
+        message: "Карта сдана!" 
     });
 });
 
