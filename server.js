@@ -45,15 +45,17 @@ app.get('/stand', (req, res) => {
     while (getScore(dealerHand) < 17) dealerHand.push(createCard());
     const pScore = getScore(playerHand), dScore = getScore(dealerHand);
     
-    let result = '';
-    if (pScore > 21) result = 'Проигрыш';
-    else if (dScore > 21 || pScore > dScore) {
-        result = 'ПОБЕДА!';
-        balance += currentBet * 2; // Возвращаем ставку в двойном размере
-    } else if (pScore === dScore) {
-        result = 'Ничья';
-        balance += currentBet; // Возвращаем ставку
-    } else result = 'Дилер выиграл';
+    // Найди место, где считается результат, и обнови тексты
+let result = '';
+if (pScore > 21) result = 'ПЕРЕБОР. ВЫ ВНЕ ИГРЫ';
+else if (dScore > 21 || pScore > dScore) {
+    result = 'ПОБЕДА! КУШ ВАШ';
+    balance += currentBet * 2;
+} else if (pScore === dScore) {
+    result = 'НИЧЬЯ. ОСТАЕМСЯ ПРИ СВОИХ';
+    balance += currentBet;
+} else result = 'ДИЛЕР ЗАБРАЛ СТАВКУ';
+
 
     res.json({ playerHand, dealerHand, playerScore: pScore, dealerScore: dScore, result, balance, gameOver });
 });
