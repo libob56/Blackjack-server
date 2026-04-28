@@ -118,10 +118,12 @@ io.on('connection', (socket) => {
 });
 
 app.get('/newGame', (req, res) => {
-    const card = createCard(); // Берем случайную карту ('A', 'K', '10' и т.д.)
+    // Вызываем функцию, которую ты написал ранее
+    const randomCard = createCard(); 
+    
     res.json({ 
         balance: 1000, 
-        card: card,
-        message: "Тебе выпала карта!" 
+        card: randomCard, // Теперь сервер отправляет саму карту!
+        message: "Игра началась!" 
     });
 });
