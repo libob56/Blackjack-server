@@ -1,37 +1,44 @@
 const express = require('express');
 const cors = require('cors');
-const http = require('http');
-const { Server } = require('socket.io');
-
 const app = express();
 app.use(cors());
 
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*" }
-});
+// Состояние игры
+let playerHand = [];
 
-// Твоя функция создания карты
 function createCard() {
     const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-    const suits = ['♠', '♣', '♥', '♦']; // Масти
+    const suits = ['♠', '♣', '♥', '♦'];
     return {
         value: values[Math.floor(Math.random() * values.length)],
         suit: suits[Math.floor(Math.random() * suits.length)]
     };
 }
 
-app.get('/newGame', (req, res) => {
-    const card = createCard();
-    res.json({ 
-        balance: 1000, 
-        card: card, // Теперь это объект {value: "10", suit: "♠"}
-        message: "Карта сдана!" 
+// Вычисление суммы очков
+function getScore(hand) {
+    let score = 0;
+    let aces = 0;
+    hand.forEach(card => {
+        if (['J', 'Q', 'K'].includes(card.value)) score += 10;
+        else if (card.value === 'A') { score += 11; aces += 1; }
+        else score += parseInt(card.value);
     });
+    while (score > 21 && aces > 0) { score -= 10; aces -= 1; }
+    return score;
+}
+
+// Новая игра (очистка руки)
+app.get('/newGame', (req, res) => {
+    playerHand = [createCard(), createCard()]; // Сразу две карты
+    res.json({ hand: playerHand, score: getScore(playerHand) });
 });
 
-// Запуск сервера на порту Render
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log('Сервер работает на порту ' + PORT);
+// Добор карты
+app.get('/hit', (req, res) => {
+    playerHand.push(createCard());
+    res.json({ hand: playerHand, score: getScore(playerHand) });
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('Крупье готов на порту ' + PORT));
